@@ -189,23 +189,64 @@ var _ = {};
   //     return total + number;
   //   }, 0); // should be 6
   _.reduce = function(collection, iterator, accumulator) {
+    var newVal;
+    if (accumulator !== undefined) {
+      newVal = accumulator;
+    } else {
+      newVal = collection[0];
+    }
+    for (var i=0; i < collection.length; i++) {
+      newVal = iterator(newVal, collection[i]);
+    }
+    return newVal;
   };
 
   // Determine if the array or object contains a given value (using `===`).
   _.contains = function(collection, target) {
     // TIP: Many iteration problems can be most easily expressed in
     // terms of reduce(). Here's a freebie to demonstrate!
-    return _.reduce(collection, function(wasFound, item) {
-      if (wasFound) {
-        return true;
+    if (Array.isArray(collection) === false) {
+      for (var key in collection) {
+        if (target === collection[key]) {
+          return true;
+        }
       }
-      return item === target;
-    }, false);
+    }
+    else {
+      return _.reduce(collection, function(wasFound, item) {
+        if (wasFound) {
+          return true;
+        }
+        return item === target;
+      }, false);
+    }
   };
 
 
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
+    if (iterator === undefined) {
+      return _.reduce(collection, function(isTruthy, item) {
+        if (!isTruthy) {
+          return false;
+        } else if (item) {
+          return true;
+        } else {
+          return false;
+        }
+      }, true);
+    }
+    else {
+      return _.reduce(collection, function(isTruthy, item) {
+        if (!isTruthy) {
+          return false;
+        } else if (iterator(item)) {
+          return true;
+        } else {
+          return false;
+        }
+      }, true);
+    }
     // TIP: Try re-using reduce() here.
   };
 
@@ -213,6 +254,21 @@ var _ = {};
   // provided, provide a default one
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
+    if (iterator === undefined) {
+      return !(_.every(collection, function(item){
+        if (item) {
+          return true;
+        }
+        else {
+          return false;
+        }
+      }));
+    }
+    else {
+      return !(_.every(collection, function(item){
+        return !iterator(item);
+      }));
+    }
   };
 
 
