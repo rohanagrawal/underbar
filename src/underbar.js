@@ -291,11 +291,32 @@ var _ = {};
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    var addFrom, newKey;
+    var newObj = obj;
+    for (var i=1; i < arguments.length; i++) {
+      addFrom = arguments[i];
+      for (newKey in addFrom) {
+        newObj[newKey] = addFrom[newKey];
+      }
+    }
+    return newObj;
   };
+
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    var addFrom, newKey;
+    var newObj = obj;
+    for (var i=1; i < arguments.length; i++) {
+      addFrom = arguments[i];
+      for (newKey in addFrom) {
+        if (newObj.hasOwnProperty(newKey) === false) {
+          newObj[newKey] = addFrom[newKey];
+        }
+      }
+    }
+    return newObj;
   };
 
 
@@ -321,7 +342,7 @@ var _ = {};
     return function() {
       if (!alreadyCalled) {
         // TIP: .apply(this, arguments) is the standard way to pass on all of the
-        // infromation from one function call to another.
+        // information from one function call to another.
         result = func.apply(this, arguments);
         alreadyCalled = true;
       }
@@ -337,6 +358,25 @@ var _ = {};
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+    // var alreadyCalled = false;
+    var result, argStore;
+    return function() {
+      if (arguments !== argStore) {
+        // if (func.arguments !== argStore) {
+          result = func.apply(this, arguments);
+          // alreadyCalled = true;
+          argStore = arguments;
+        // }
+      }
+      return result;
+      // if (func.arguments === argStore) {
+      //   return _.once(func);
+      // }
+      // else {
+      //   return _.once(func);
+      //   argStore = func.arguments;
+      // }
+    };
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -346,6 +386,13 @@ var _ = {};
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    var funcArgs = [];
+    if (arguments.length > 2) {
+      for (var i=2; i < arguments.length; i++) {
+        funcArgs.push(arguments[i]);
+      }
+    }
+    return setTimeout(function(){ return func.apply(this, funcArgs); }, wait);
   };
 
 
@@ -360,6 +407,15 @@ var _ = {};
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+    var arrayCopy = Array.prototype.slice.call(arguments, 0);
+    var newArray = [];
+    var arrayLength = arrayCopy.length;
+    for (var i=0; i < arrayLength; i++) {
+      var randIndex = Math.floor(Math.random()*(arrayCopy.length));
+      newArray.push(arrayCopy[randIndex]);
+      arrayCopy.splice(randIndex, 1);
+    }
+    return newArray;
   };
 
 
